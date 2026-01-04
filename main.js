@@ -384,6 +384,9 @@ async function handleMessages(sock, messageUpdate, printLog) {
             case userMessage.startsWith('.kick'):
                 const mentionedJidListKick = message.message.extendedTextMessage?.contextInfo?.mentionedJid || [];
                 await kickCommand(sock, chatId, senderId, mentionedJidListKick, message);
+case userMessage.startsWith('.فنش'):
+    await finshCommand(sock, chatId, message);
+    break;
                 break;
             case userMessage.startsWith('.mute'):
                 {
