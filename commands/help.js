@@ -182,23 +182,23 @@ async function helpCommand(sock, chatId, message) {
 ╚═══════════════════╝
 
 ╔═══════════════════╗
-🧩 *MISC*:
-║ ➤ .heart
-║ ➤ .horny
-║ ➤ .circle
-║ ➤ .lgbt
-║ ➤ .lolice
-║ ➤ .its-so-stupid
-║ ➤ .namecard 
-║ ➤ .oogway
-║ ➤ .tweet
-║ ➤ .ytcomment 
-║ ➤ .comrade 
-║ ➤ .gay 
-║ ➤ .glass 
-║ ➤ .jail 
-║ ➤ .passed 
-║ ➤ .triggered
+🧩 متفرقات:
+║ ➤ .heart — إرسال رمز قلب أو تأثير
+║ ➤ .horny — محتوى مضحك/ساخر للونج
+║ ➤ .circle — تأثير دائرة على الصورة
+║ ➤ .lgbt — محتوى/رمز لدعم LGBT
+║ ➤ .lolice — دعابة شرطة LOLICE
+║ ➤ .its-so-stupid — محتوى ساخر
+║ ➤ .namecard — بطاقة تعريفية للمستخدم
+║ ➤ .oogway — اقتباسات/محتوى أوغواي
+║ ➤ .tweet — مشاركة تغريدة أو جلبها
+║ ➤ .ytcomment — إضافة تعليق على يوتيوب (إذا مدعوم)
+║ ➤ .comrade — رسالة رفيق/نكتة
+║ ➤ .gay — دعابة/وصف مرحة (استخدام بحذر)
+║ ➤ .glass — تأثير زجاجي على الصورة
+║ ➤ .jail — تأثير سجن على الصورة
+║ ➤ .passed — تأثير نجاح/نجاة على الصورة
+║ ➤ .triggered — تأثير مزعج/متحرك
 ╚═══════════════════╝
 
 ╔═══════════════════╗
