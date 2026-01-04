@@ -3,11 +3,11 @@ const fs = require('fs');
 const path = require('path');
 
 async function helpCommand(sock, chatId, message) {
-    const helpMessage = `
+ const helpMessage = `
 ╔═══════════════════╗
-   *🤖 ${settings.botName || 'KnightBot-MD'}*  
-   Version: *${settings.version || '3.0.0'}*
-   by ${settings.botOwner || 'Mr Unique Hacker'}
+ 🤖 ${settings.botName || 'KnightBot-MD'}*  
+   الإصدار: *${settings.version || '3.0.0'}
+ بواسطة ${settings.botOwner || 'Mr Unique Hacker'}
    YT : ${global.ytch}
 ╚═══════════════════╝
 
