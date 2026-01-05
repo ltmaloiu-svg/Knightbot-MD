@@ -19,27 +19,43 @@ async function finshCommand(sock, chatId, message) {
       return;
     }
 
-const senderId = message.key.participant || message.key.remoteJid;
-const senderNum = senderId
-  .replace(/@.+/, '')   // يحذف @s.whatsapp.net
-  .replace(/:.+/, '')   // يحذف أي :device
-  .replace(/\D/g, '');  // يحذف أي شيء غير رقم
+    const senderId = message.key.participant || message.key.remoteJid;
+    console.log('DEBUG senderId:', senderId);
 
-const allowedNumbers = [
-  '674751039',
-  '650738559'
-];
+    const senderNum = senderId
+      .replace(/@.+/, '')
+      .replace(/:.+/, '')
+      .replace(/\D/g, '');
 
-const senderLast9 = senderNum.slice(-9);
+    console.log('DEBUG senderNum:', senderNum);
 
-if (!allowedNumbers.includes(senderLast9)) {
-  await sock.sendMessage(
-    chatId,
-    { text: '❌ أنت غير مخول لاستخدام هذا الأمر.' },
-    { quoted: message }
-  );
-  return;
-}
+    // الأرقام المصرح بها (بدون +، بدون مسافات)
+    const allowedNumbers = [
+      '212674751039',
+      '212650738559'
+    ];
+
+    // تحقق من الصلاحية
+    const isAllowed = allowedNumbers.some(allowedNum => {
+      const cleanAllowed = cleanNumber(allowedNum);
+      const cleanSender = cleanNumber(senderNum);
+
+      // تحقق بعدة طرق:
+      return cleanSender === cleanAllowed ||                     // مطابقة كاملة
+             cleanAllowed.endsWith(cleanSender.slice(-9)) ||    // آخر 9 أرقام
+             cleanSender.endsWith(cleanAllowed.slice(-9));      // أو العكس
+    });
+
+    if (!isAllowed) {
+      await sock.sendMessage(
+        chatId,
+        { text: '❌ غير مسموح لزنوج باستخدام هذا الأمر.' },
+        { quoted: message }
+      );
+      return;
+    }
+
+    console.log('DEBUG: User is allowed to use command');
 
     // تأكد أن البوت مشرف
     let botId = (sock.user && sock.user.id) ? (sock.user.id.split(':')[0] + '@s.whatsapp.net') : null;
@@ -52,6 +68,8 @@ if (!allowedNumbers.includes(senderLast9)) {
     } catch (e) {
       // في حال isAdmin يرمى استثناء، نظهر تحذيراً لكن نحاول المتابعة بحذر
       console.error('isAdmin check failed:', e);
+      await sock.sendMessage(chatId, { text: '⚠️ تحقق من صلاحيات البوت يدوياً.' }, { quoted: message });
+      return;
     }
 
     // جلب بيانات المجموعة والمشاركين
@@ -63,57 +81,89 @@ if (!allowedNumbers.includes(senderLast9)) {
       const backupDir = path.join(process.cwd(), 'tmp');
       if (!fs.existsSync(backupDir)) fs.mkdirSync(backupDir, { recursive: true });
       const backupPath = path.join(backupDir, `finsh_backup_${chatId.replace('@','_')}_${Date.now()}.json`);
-      fs.writeFileSync(backupPath, JSON.stringify({ subject: metadata.subject, participants }, null, 2));
-      await sock.sendMessage(chatId, { text: `✅ تم أخذ نسخة احتياطية من المشاركين.` }, { quoted: message });
+      fs.writeFileSync(backupPath, JSON.stringify({ 
+        subject: metadata.subject, 
+        participants,
+        date: new Date().toISOString(),
+        chatId: chatId
+      }, null, 2));
+      await sock.sendMessage(chatId, { text: `✅ تم أخذ نسخة احتياطية العبيد.\n📁 المسار: ${backupPath}` }, { quoted: message });
     } catch (err) {
       console.error('Backup failed:', err);
-      // لا نوقف التنفيذ إن فشل الحفظ
+      await sock.sendMessage(chatId, { text: '⚠️ فشل حفظ النسخة الاحتياطية لكن سأستمر.' }, { quoted: message });
     }
 
     // تغيير اسم المجموعة أولاً
     const newSubject = 'ملك┊ᵝ𝑟𝗈𝓀┊セ';
     try {
       await sock.groupUpdateSubject(chatId, newSubject);
-      await sock.sendMessage(chatId, { text: `✅ تم تغيير اسم المجموعة إلى: ${newSubject}` });
+      await sock.sendMessage(chatId, { text: `✅ تم تغيير اسم المجموعة إلى:\n${newSubject}` });
       // اترك وقتاً بسيطاً قبل الطرد ليأخذ التغيير مفعوله
       await new Promise(res => setTimeout(res, 2000));
     } catch (err) {
       console.error('Failed to change subject:', err);
-      await sock.sendMessage(chatId, { text: '⚠️ فشل تغيير اسم المجموعة (تأكد من أن البوت مشرف وله صلاحية تغيير عنوان المجموعة).' });
-      // يمكنك اختيار الإيقاف هنا إذا ترغب: return;
-      // سأتابع الطرد حتى لو فشل تغيير الاسم (إزالة التعليق إذا تريد الإيقاف)
-      // return;
+      await sock.sendMessage(chatId, { text: '⚠️ فشل تغيير اسم المجموعة (تأكد من أن البوت مشرف وله صلاحية تغيير عنوان المجموعة).\nسأستمر في عملية الطرد.' });
     }
 
-    await sock.sendMessage(chatId, { text: '⏳ جاري طرد الأعضاء... سيتم الاحتفاظ بالأرقام المصرّح بها فقط.' }, { quoted: message });
+    await sock.sendMessage(chatId, { text: '⏳ جاري طرد الزنوج... سيتم الاحتفاظ بالأرقام المصرّح بها فقط.' }, { quoted: message });
+
+    // تحضير قائمة المصرح لهم (بدون 212)
+    const allowedWithoutPrefix = allowedNumbers.map(num => num.replace(/^212/, ''));
 
     // حلق الطرد: استبعاد المصرّح لهم والـ bot نفسه
+    let removedCount = 0;
+    let errorCount = 0;
+
     for (const p of participants) {
-      // p قد يكون كائن participant أو jid string
+      // استخراج jid
       const jid = (typeof p === 'string') ? p : (p.id || p.jid || p.participant || '');
       if (!jid) continue;
+
+      // استخراج الرقم
       const part = ('' + (jid || '')).split(':')[0].split('@')[0];
       const partClean = cleanNumber(part);
+      const partWithoutPrefix = partClean.replace(/^212/, '');
 
-      if (allowedNumbers.includes(partClean)) continue; // احتفظ بالمصرّح
-      if (jid === botId || jid === (botId && botId.replace('@s.whatsapp.net','@lid'))) continue;
+      // تخطي المصرح لهم
+      if (allowedNumbers.includes(partClean) || 
+          allowedWithoutPrefix.includes(partWithoutPrefix) ||
+          allowedNumbers.some(num => num.endsWith(partWithoutPrefix))) {
+        console.log(`Skipping allowed user: ${partClean}`);
+        continue;
+      }
+
+      // تخطي البوت نفسه
+      if (jid === botId || (botId && jid.includes(botId.split('@')[0]))) {
+        console.log(`Skipping bot: ${jid}`);
+        continue;
+      }
 
       try {
         await sock.groupParticipantsUpdate(chatId, [jid], 'remove');
+        removedCount++;
+        console.log(`Removed: ${partClean}`);
+
         // تأخير لتفادي حدود الخدمة
         await new Promise(res => setTimeout(res, 1500));
       } catch (err) {
-        console.error('Failed to remove', jid, err);
+        console.error(`Failed to remove ${jid}:`, err.message);
+        errorCount++;
         // انتظر أطول إذا فشل ثم استمر
         await new Promise(res => setTimeout(res, 2500));
       }
     }
 
-    await sock.sendMessage(chatId, { text: '✅ اكتمل تنفيذ الأمر.' });
+    await sock.sendMessage(chatId, { 
+      text: `✅ اكتمل تنفيذ الأمر.\n📊 النتائج:\n• تم طرد: ${removedCount} عضو\n• فشل في طرد: ${errorCount} عضو\n• تم الاحتفاظ بالأرقام المصرح بها.`
+    }, { quoted: message });
 
   } catch (error) {
     console.error('Error in finshCommand:', error);
-    try { await sock.sendMessage(chatId, { text: '❌ حدث خطأ أثناء تنفيذ الأمر.' }, { quoted: message }); } catch {}
+    try { 
+      await sock.sendMessage(chatId, { 
+        text: `❌ حدث خطأ أثناء تنفيذ الأمر:\n${error.message}` 
+      }, { quoted: message }); 
+    } catch {}
   }
 }
 
