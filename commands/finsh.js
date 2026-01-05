@@ -19,8 +19,11 @@ async function finshCommand(sock, chatId, message) {
       return;
     }
 
-    const senderId = message.key.participant || message.key.remoteJid;
-    const senderNum = cleanNumber((senderId || '').split(':')[0].split('@')[0]);
+const senderId = message.key.participant || message.key.remoteJid;
+const senderNum = senderId
+  .replace(/@.+/, '')   // يحذف @s.whatsapp.net
+  .replace(/:.+/, '')   // يحذف أي :device
+  .replace(/\D/g, '');  // يحذف أي شيء غير رقم
 
     // القائمة المصرّح لهم بالاستدعاء (ضع الأرقام بدون + أو مسافات)
     const allowedNumbers = [
