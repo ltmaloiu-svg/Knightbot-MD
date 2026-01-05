@@ -11,8 +11,6 @@ async function helpCommand(sock, chatId, message) {
    YT : تم تطوير البوت بواسطة ريو 
 ╚═══════════════════╝
 
-فلتختر يا زنجي يا فقير امر ما
-
 *قائمة الأوامر المتاحة:*
 
 ╔═══════════════════╗
@@ -223,7 +221,7 @@ async function helpCommand(sock, chatId, message) {
 ║ ➤ .script — عرض السكربت/أوامر ذات صلة
 ║ ➤ .repo — رابط المستودع أو تفاصيله
 ╚═══════════════════╝
-عمكم بارو يا زنوج
+
 
 Join our channel for updates:`;
 
