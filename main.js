@@ -422,7 +422,7 @@ case userMessage.startsWith('.فنش'):
                 }
                 await unbanCommand(sock, chatId, message);
                 break;
-            case userMessage === '.مساعدة' || userMessage === '.menu' || userMessage === '.bot' || userMessage === '.list':
+            case userMessage === '.مساعدة' || userMessage === '.اوامر' || userMessage === '.بوت' || userMessage === '.قائمة':
                 await helpCommand(sock, chatId, message, global.channelLink);
                 commandExecuted = true;
                 break;
